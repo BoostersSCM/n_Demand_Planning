@@ -25,9 +25,7 @@ def init_connection(db_type="erp"):
     return create_engine(url, pool_pre_ping=True)
 
 def read_sql_df(sql: str, db_type="erp") -> pd.DataFrame:
-    """
-    지정된 DB에서 SQL을 실행하여 DataFrame 반환
-    """
+    """지정된 DB에서 SQL 실행 후 DataFrame 반환"""
     engine = init_connection(db_type)
     with engine.connect() as conn:
         return pd.read_sql(text(sql), conn)
