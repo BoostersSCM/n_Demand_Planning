@@ -19,28 +19,10 @@ FROM (
             WHEN asroi.seller_order_id LIKE '5%' THEN 'tiktok'
             WHEN asroi.seller_order_id LIKE '%shopify%' THEN 'shopify'
             WHEN asroi.seller_order_id LIKE '70%' AND asroi.sales_channel = 'amazon.ca' THEN 'canada_amazon'
-            WHEN asroi.seller_order_id LIKE '70%' AND asroi.sales_channel = 'amazon.com.mx' THEN 'mexico_amazon'
             WHEN asroi.sales_channel = 'amazon.co.jp' THEN 'japan_amazon'
-            WHEN asroi.sales_channel = 'amazon.com.br' THEN 'brazil_amazon'
-            WHEN asroi.sales_channel = 'amazon.com.au' THEN 'australia_amazon'
-            WHEN asroi.sales_channel = 'amazon.co.uk' THEN 'uk_amazon'
-            WHEN asroi.sales_channel = 'amazon.de' THEN 'germany_amazon'
-            WHEN asroi.sales_channel = 'amazon.fr' THEN 'france_amazon'
-            WHEN asroi.sales_channel = 'amazon.it' THEN 'italy_amazon'
-            WHEN asroi.sales_channel = 'amazon.es' THEN 'spain_amazon'
-            WHEN asroi.sales_channel = 'amazon.nl' THEN 'netherlands_amazon'
-            WHEN asroi.sales_channel = 'amazon.se' THEN 'sweden_amazon'
-            WHEN asroi.sales_channel = 'amazon.pl' THEN 'poland_amazon'
-            WHEN asroi.sales_channel = 'amazon.com.be' THEN 'belgium_amazon'
-            WHEN asroi.sales_channel = 'amazon.in' THEN 'india_amazon'
-            WHEN asroi.sales_channel = 'amazon.sg' THEN 'singapore_amazon'
-            WHEN asroi.sales_channel = 'amazon.com.tr' THEN 'turkey_amazon'
-            WHEN asroi.sales_channel = 'amazon.ae' THEN 'uae_amazon'
-            WHEN asroi.sales_channel = 'amazon.sa' THEN 'saudi_amazon'
-            WHEN asroi.sales_channel = 'amazon.eg' THEN 'egypt_amazon'
-            WHEN asroi.seller_order_id LIKE '%seeding%' THEN 'seeding'
+            WHEN asroi.sales_channel = 'amazon.com.mx' THEN 'mexico_amazon'
             WHEN asroi.sales_channel = 'non-amazon' THEN 'non_amazon'
-            ELSE 'amazon' 
+            ELSE 'amazon'
         END AS order_gubun,
         asrodi.quantity
     FROM amazon_seller_report_order_infos AS asroi
@@ -61,7 +43,7 @@ GROUP BY
     channel;
 """
 
-# SCM DB 판매이력 쿼리
+# SCM(DB: scm) 판매이력 쿼리
 SQL_SALES_HISTORY_SCM = """
 SELECT 
     DATE_FORMAT(date, '%Y-%m') AS ym,
@@ -82,4 +64,20 @@ WHERE
     AND channel_type NOT LIKE '%이동출고%'
     AND channel_name NOT LIKE '%cafe24%'
 GROUP BY ym, product_code, product_name, channel;
+"""
+
+# 제품 단가
+SQL_PRODUCT_PRICE = """
+SELECT
+  itemno AS product_code,
+  itemname AS product_name,
+  COALESCE(price, 0) AS unit_price
+FROM boosters_items
+WHERE COALESCE(is_active, 1) = 1;
+"""
+
+# 현재 재고
+SQL_CURRENT_INVENTORY = """
+SELECT product_code, stock_qty
+FROM scm.current_inventory;
 """
